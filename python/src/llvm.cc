@@ -272,13 +272,13 @@ void init_triton_llvm(py::module &&m) {
 
   m.def("init_targets", []() {
     static std::once_flag init_flag;
-    std::call_once(init_flag, []() {
+    /*std::call_once(init_flag, []() {
       llvm::InitializeAllTargetInfos();
       llvm::InitializeAllTargets();
       llvm::InitializeAllTargetMCs();
       llvm::InitializeAllAsmParsers();
       llvm::InitializeAllAsmPrinters();
-    });
+    });*/
   });
 
   m.def("link_extern_libs", [](llvm::Module *dstMod,

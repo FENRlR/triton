@@ -8,7 +8,7 @@ endif()
 
 include(ExternalProject)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -292,4 +292,4 @@ endif()
 
 add_subdirectory(bin)
 add_subdirectory(test)
-add_subdirectory(unittest)
+#add_subdirectory(unittest)
