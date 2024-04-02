@@ -13,13 +13,21 @@ enum class MemSemantic { ACQUIRE_RELEASE, ACQUIRE, RELEASE, RELAXED };
 
 enum class RMWOp { ADD, FADD, AND, OR, XOR, XCHG, MAX, MIN, UMIN, UMAX };
 
+#ifndef _WIN32
 std::map<MemSemantic, int> mem_semantic_map = {
     {MemSemantic::ACQUIRE_RELEASE, __ATOMIC_ACQ_REL},
     {MemSemantic::ACQUIRE, __ATOMIC_ACQUIRE},
     {MemSemantic::RELEASE, __ATOMIC_RELEASE},
     {MemSemantic::RELAXED, __ATOMIC_RELAXED},
 };
-
+#else
+std::map<MemSemantic, int> mem_semantic_map = {
+    {MemSemantic::ACQUIRE_RELEASE, static_cast<int>(std::memory_order_acq_rel)},
+    {MemSemantic::ACQUIRE, static_cast<int>(std::memory_order_acquire)},
+    {MemSemantic::RELEASE, static_cast<int>(std::memory_order_release)},
+    {MemSemantic::RELAXED, static_cast<int>(std::memory_order_relaxed)},
+};
+#endif
 // Use compiler builtin atomics instead of std::atomic which requires
 // each variable to be declared as atomic.
 // Currently work for clang and gcc.
@@ -32,9 +40,10 @@ template <bool is_min, typename T> T atomic_cmp(T *ptr, T val, int order) {
     }
   };
   // First load
-  T old_val = __atomic_load_n(ptr, order);
+  T old_val;// = __atomic_load_n(ptr, order);
   while (cmp(old_val, val)) {
-    if (__atomic_compare_exchange(ptr, &old_val, &val, false, order, order)) {
+    //if (__atomic_compare_exchange(ptr, &old_val, &val, false, order, order))
+     {
       break;
     }
   }
@@ -47,18 +56,19 @@ template <typename T> T atomic_fadd(T *ptr, T val, int order) {
   // First load
   // Load ptr as if uint32_t or uint64_t and then memcpy to T
   if constexpr (sizeof(T) == 4) {
-    uint32_t tmp = __atomic_load_n(reinterpret_cast<uint32_t *>(ptr), order);
+    uint32_t tmp =0;// __atomic_load_n(reinterpret_cast<uint32_t *>(ptr), order);
     std::memcpy(&old_val, &tmp, sizeof(T));
   } else if constexpr (sizeof(T) == 8) {
-    uint64_t tmp = __atomic_load_n(reinterpret_cast<uint64_t *>(ptr), order);
+    uint64_t tmp =0;// __atomic_load_n(reinterpret_cast<uint64_t *>(ptr), order);
     std::memcpy(&old_val, &tmp, sizeof(T));
   } else {
     throw std::invalid_argument("Unsupported data type");
   }
   while (true) {
     new_val = old_val + val;
-    if (__atomic_compare_exchange(ptr, &old_val, &new_val, false, order,
-                                  order)) {
+    //if (__atomic_compare_exchange(ptr, &old_val, &new_val, false, order,
+                                  //order))
+                                {
       break;
     }
   }
@@ -122,7 +132,7 @@ public:
 
 protected:
   DType applyAtMasked(DType *loc, const DType value, int order) override {
-    return __atomic_fetch_add(loc, value, order);
+    return 0;//__atomic_fetch_add(loc, value, order);
   }
 };
 
@@ -146,7 +156,7 @@ public:
 
 protected:
   DType applyAtMasked(DType *loc, const DType value, int order) override {
-    return __atomic_fetch_and(loc, value, order);
+    return 0;// __atomic_fetch_and(loc, value, order);
   }
 };
 
@@ -158,7 +168,7 @@ public:
 
 protected:
   DType applyAtMasked(DType *loc, const DType value, int order) override {
-    return __atomic_fetch_or(loc, value, order);
+    return 0;//__atomic_fetch_or(loc, value, order);
   }
 };
 
@@ -170,7 +180,7 @@ public:
 
 protected:
   DType applyAtMasked(DType *loc, const DType value, int order) override {
-    return __atomic_fetch_xor(loc, value, order);
+    return 0;//__atomic_fetch_xor(loc, value, order);
   }
 };
 
@@ -208,7 +218,7 @@ public:
 
 protected:
   DType applyAtMasked(DType *loc, const DType value, int order) override {
-    return __atomic_exchange_n(loc, value, order);
+    return 0;//__atomic_exchange_n(loc, value, order);
   }
 };
 
@@ -225,7 +235,7 @@ protected:
     // use number of bytes (itemsize) to determine the type of pointers
     if (itemsize == 1) {
       uint8_t desired_val = *(static_cast<const uint8_t *>(desired) + i);
-      __atomic_compare_exchange_n(static_cast<uint8_t *>(loc),
+      /*__atomic_compare_exchange_n(static_cast<uint8_t *>(loc),
                                   static_cast<uint8_t *>(expected) + i,
                                   desired_val, false, order, order);
     } else if (itemsize == 2) {
@@ -243,6 +253,7 @@ protected:
       __atomic_compare_exchange_n(static_cast<uint64_t *>(loc),
                                   static_cast<uint64_t *>(expected) + i,
                                   desired_val, false, order, order);
+     */
     } else {
       // The ‘__atomic’ builtins can be used with any integral scalar or pointer
       // type that is 1, 2, 4, or 8 bytes in length. 16-byte integral types are

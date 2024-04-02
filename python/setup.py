@@ -406,7 +406,7 @@ if platform.system() in ["Linux", "Windows"]:
 backends = ["nvidia", "amd"]
 if os.name == "nt":
     backends = ["nvidia"]
-backends = _copy_backends(backends)
+backends = [*BackendInstaller.copy(["nvidia", "amd"]), *BackendInstaller.copy_externals()]
 
 
 def add_link_to_backends():
