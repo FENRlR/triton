@@ -23,6 +23,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <stdexcept>
+#include <iostream>
 
 namespace py = pybind11;
 
@@ -44,6 +45,13 @@ std::string translateLLVMIRToASM(llvm::Module &module,
   using namespace mlir;
   // options
   auto options = llvm::cl::getRegisteredOptions();
+   // Get registered options
+    llvm::StringMap<llvm::cl::Option*> &OptionsMap = llvm::cl::getRegisteredOptions();
+
+    // Print registered option names
+    for (auto &OptionPair : OptionsMap) {
+        std::cout << OptionPair.getKey().str() << "\n";
+    }
   for (std::string flag : flags) {
     auto *shortPtr = static_cast<llvm::cl::opt<bool> *>(options[flag]);
     assert(shortPtr);

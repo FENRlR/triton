@@ -68,6 +68,7 @@ def compile_module_from_src(src, name):
                 cache_path = cache.put(f.read(), so_name, binary=True)
     import importlib.util
     spec = importlib.util.spec_from_file_location(name, cache_path)
+    print(cache_path)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
