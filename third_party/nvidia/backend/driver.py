@@ -12,7 +12,7 @@ from triton.backends.driver import GPUDriver
 dirname = os.path.dirname(os.path.realpath(__file__))
 include_dir = [os.path.join(dirname, "include")]
 libdevice_dir = os.path.join(dirname, "lib")
-libraries = ['cuda']
+libraries = ['cuda', 'python311']
 
 if os.name == "nt":
     include_dir += [os.path.join(os.environ.get("CUDA_PATH"), "include")]

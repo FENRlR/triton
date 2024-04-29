@@ -48,6 +48,7 @@ def _build(name, src, srcdir, library_dirs, include_dirs, libraries):
         clang = shutil.which("clang")
         gcc = shutil.which("gcc")
         cc = gcc if gcc is not None else clang
+        cc = "cl"
         if cc is None:
             raise RuntimeError("Failed to find C compiler. Please specify via CC environment variable.")
     # This function was renamed and made public in Python 3.10

@@ -1,4 +1,4 @@
-﻿#include "mlir/IR/BuiltinOps.h" // mlir::ModuleOp
+#include "mlir/IR/BuiltinOps.h" // mlir::ModuleOp
 #include "mlir/Target/LLVMIR/LLVMTranslationInterface.h"
 #include "mlir/Target/LLVMIR/ModuleTranslation.h"
 #include "triton/Tools/Sys/GetEnv.hpp"
@@ -44,6 +44,7 @@ std::string translateLLVMIRToASM(llvm::Module &module,
                                  bool enable_fp_fusion, bool isObject) {
   using namespace mlir;
   // options
+   std::cout << "ionut0";
   auto options = llvm::cl::getRegisteredOptions();
    // Get registered options
     llvm::StringMap<llvm::cl::Option*> &OptionsMap = llvm::cl::getRegisteredOptions();
@@ -52,11 +53,13 @@ std::string translateLLVMIRToASM(llvm::Module &module,
     for (auto &OptionPair : OptionsMap) {
         std::cout << OptionPair.getKey().str() << "\n";
     }
+    std::cout << "ionut2";
   for (std::string flag : flags) {
     auto *shortPtr = static_cast<llvm::cl::opt<bool> *>(options[flag]);
     assert(shortPtr);
     shortPtr->setValue(true);
   }
+  std::cout << "ionut3";
   if (triton::tools::getBoolEnv("LLVM_IR_ENABLE_DUMP")) {
     auto optIt = options.find("print-after-all");
     if (optIt != options.end()) {
@@ -64,12 +67,13 @@ std::string translateLLVMIRToASM(llvm::Module &module,
       *optPtr = true;
     }
   }
-
+  std::cout << "ionut4";
   // inline everything
   for (llvm::Function &f : module.functions())
     if (!f.hasFnAttribute(llvm::Attribute::NoInline))
       f.addFnAttr(llvm::Attribute::AlwaysInline);
   // verify and store llvm
+  std::cout << "ionut5";
   llvm::legacy::PassManager pm;
   pm.add(llvm::createAlwaysInlinerLegacyPass());
   pm.add(llvm::createVerifierPass());
@@ -280,13 +284,13 @@ void init_triton_llvm(py::module &&m) {
 
   m.def("init_targets", []() {
     static std::once_flag init_flag;
-    /*std::call_once(init_flag, []() {
+    std::call_once(init_flag, []() {
       llvm::InitializeAllTargetInfos();
       llvm::InitializeAllTargets();
       llvm::InitializeAllTargetMCs();
       llvm::InitializeAllAsmParsers();
       llvm::InitializeAllAsmPrinters();
-    });*/
+    });
   });
 
   m.def("link_extern_libs", [](llvm::Module *dstMod,
