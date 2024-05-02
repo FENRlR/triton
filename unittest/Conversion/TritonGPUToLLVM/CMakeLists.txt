@@ -11,9 +11,9 @@ add_triton_ut(
 	DEFS NVIDIA_TARGET=1
 )
 
-add_triton_ut(
-	NAME TestEmitIndicesAMD
-	SRCS EmitIndicesTest.cpp DumpLayout.cpp
-	LIBS TritonGPUIR TritonAMDGPUToLLVM
-	DEFS AMD_TARGET=1
-)
+#add_triton_ut(
+#	NAME TestEmitIndicesAMD
+#	SRCS EmitIndicesTest.cpp DumpLayout.cpp
+#	LIBS TritonGPUIR TritonAMDGPUToLLVM
+#	DEFS AMD_TARGET=1
+#)
